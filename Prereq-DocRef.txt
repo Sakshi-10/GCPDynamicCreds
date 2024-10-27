@@ -1,0 +1,87 @@
+Prerequisites
+
+1) GCP Cloud Storage Bucket 
+2) GCP Service Account with Keys (credentials json file) 
+	Download the json key file for the service account from GCP console 
+		1) Go to IAM 
+		2) Navigate to Service Account(SA)
+		3) Select the SA linked with your bucket 
+		4) Go to keys Tab
+		5) Add key 
+		6) A json file will be downloaded 
+Sample: sakshi-proj-***************.json 
+
+3) IAM role with some IAM Permissions
+4) Configure GCP CLI : https://cloud.google.com/sdk/docs/install#linux
+5) Dependent Packages : Install-Package Google.Cloud.Storage.V1 or dotnet add package Google.Cloud.Storage.V1
+
+Document References list 
+
+GCP Storage Classes
+https://cloud.google.com/storage/docs/storage-classes
+
+Understanding IAM Roles in GCP 
+https://cloud.google.com/iam/docs/understanding-roles#cloud-storage-roles
+
+Service Account Doc
+https://developers.google.com/identity/protocols/oauth2#serviceaccount
+
+ServiceAccountCredential Document 
+https://cloud.google.com/dotnet/docs/reference/Google.Apis/latest/Google.Apis.Auth.OAuth2.GoogleCredential#Google_Apis_Auth_OAuth2_GoogleCredential_FromServiceAccountCredential_Google_Apis_Auth_OAuth2_ServiceAccountCredential
+
+Google.Cloud.Iam Document 
+https://cloud.google.com/dotnet/docs/reference/Google.Cloud.Iam.V1/latest
+
+Custom GCP IAM Role
+https://cloud.google.com/iam/docs/creating-custom-roles#iam-custom-roles-testable-permissions-csharp
+
+Restrict a credential's Cloud Storage permissions
+https://cloud.google.com/iam/docs/downscoping-short-lived-credentials
+https://cloud.google.com/dotnet/docs/reference/Google.Cloud.Storage.V1
+
+Google.Cloud.Storage.V1.StorageClient Docs
+https://cloud.google.com/dotnet/docs/reference/Google.Cloud.Storage.V1/latest/Google.Cloud.Storage.V1.StorageClient
+
+API Status Code
+https://cloud.google.com/storage/docs/json_api/v1/status-codes
+
+Bucket Lock 
+https://cloud.google.com/storage/docs/using-bucket-lock
+
+IAM roles 
+https://cloud.google.com/storage/docs/access-control/iam-roles
+
+Access Boundary 
+https://cloud.google.com/iam/docs/reference/sts/rest/v1/AccessBoundary
+
+Downscope STS creds
+https://cloud.google.com/iam/docs/downscoping-short-lived-credentials
+
+Exchange manually Creds
+https://cloud.google.com/iam/docs/downscoping-short-lived-credentials#exchange-credential-manual
+
+Exchange Automatically Creds
+https://cloud.google.com/iam/docs/downscoping-short-lived-credentials#exchange-credential-auto
+
+Access token file
+https://cloud.google.com/sdk/gcloud/reference#--access-token-file
+
+Authorize using cred file
+https://cloud.google.com/sdk/docs/authorizing
+
+Application Default Credentials
+https://cloud.google.com/docs/authentication/application-default-credentials#GAC
+
+GCP Authentication Methods
+https://cloud.google.com/endpoints/docs/openapi/authentication-method
+
+GCP Service Token API 
+https://cloud.google.com/iam/docs/reference/sts/rest
+
+Using OAuth 2.0 to Access Google APIs 
+https://developers.google.com/identity/protocols/oauth2
+
+My Blog 
+
+
+

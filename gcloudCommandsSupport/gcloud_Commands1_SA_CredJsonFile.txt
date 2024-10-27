@@ -1,0 +1,154 @@
+Using cloud generate Short lived Credentials for a GCP Cloud Storage
+
+Downloaded json file for Service account 
+"sakshi-proj-***************.json "
+Ss
+******************************************************************************************************************************
+
+snasha ~/Downloads
+$ cat sakshi-proj-***************.json
+{
+  "type": "service_account",
+  "project_id": "sakshi-proj",
+  "private_key_id": "304********************d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\n****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************\n-----END PRIVATE KEY-----\n",
+  "client_email": "***********-compute@developer.gserviceaccount.com",
+  "client_id": "********************",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/*************-compute%40developer.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
+
+worked : 
+snasha ~/Downloads $ gcloud auth activate-service-account --key-file=sakshi-proj-***************.json
+Activated service account credentials for: [Activated service account credentials for: [bucket-*******@sakshi-proj.iam.gserviceaccount.com]]
+
+now I am logged in as Service account and no longer as sakshi nasha
+snasha ~/Downloads
+$ gcloud info
+Google Cloud SDK [472.0.0]
+
+Account: [bucketname@sakshi-proj.iam.gserviceaccount.com]
+Project: [sakshi-proj]
+Universe Domain: [googleapis.com]
+
+Current Properties:
+  [accessibility]
+    screen_reader: [True] (property file)
+  [core]
+    account: [bucketname@sakshi-proj.iam.gserviceaccount.com] (property file)
+    disable_usage_reporting: [False] (property file)
+    project: [sakshi-proj] (property file)
+
+git: [git version 2.41.0.windows.3]
+ssh: [OpenSSH_9.3p1, OpenSSL 3.1.1 30 May 2023]
+
+service account has access to both buckets right now
+
+snasha ~/Downloads
+$ gsutil ls
+gs://***********bucket1/
+gs://***********bucket2/
+
+snasha ~/Downloads
+$ gsutil ls -r gs://***********bucket2/**
+gs://***********bucket2/text-GCP.txt
+gs://***********bucket2/text-GCP2.txt
+
+snasha ~/Downloads
+$ gsutil ls -r gs://***********bucket1/**
+gs://***********bucket1/text-GCP.txt
+
+***************** ACCESS TOKEN **********************
+snasha ~/Downloads
+$ export TOKEN=`gcloud auth print-access-token`
+
+snasha ~/Downloads
+$ echo $TOKEN
+y**********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************kW20ov3uUXXRyj******************************************************************************************************************************************************************************************************08Wvpg1aWFBbkSxxuWsga2daty6xeRctnvU2ysQcZrfk7drBmvwQk-BjRQJ0qqnm17s**********************Y
+
+snasha ~/Downloads
+$ cd ..
+
+snasha ~
+$ cd Desktop/
+
+***************** DOWNSCOPING ACCESS TOKEN TO JUST ONE BUCKET **********************
+snasha ~/Desktop
+$ cat access.json
+{
+  "accessBoundary" : {
+      "accessBoundaryRules" : [
+        {
+          "availableResource" : "//storage.googleapis.com/projects/_/buckets/bucket1",
+          "availablePermissions": ["inRole:roles/storage.objectViewer"]
+        }
+      ]
+  }
+}
+snasha ~/Desktop
+$ curl -s -H "Content-Type:application/x-www-form-urlencoded" -X POST https://sts.googleapis.com/v1/token -d 'grant_type=urn:ietf:params:oauth:grant-type:token-exchange&subject_token_type=urn:ietf:params:oauth:token-type:access_token&requested_token_type=urn:ietf:params:oauth:token-type:access_token&subject_token='$TOKEN --data-urlencode "options=$(cat access.json)"
+{
+  "access_token": "ya******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************W7DBYJ13XwopjWsY4CFipWMje_wfufQG9BxwZemWYCU-5gPz_Lh3_gf49fz4g1GIoLEr4BhLLgHgwkiJFcY6gd4h4SjzHgileasdBEGm-JlvMgmt1-fR3_dNBXhAJq",
+  "issued_token_type": "urn:ietf:params:oauth:token-type:access_token",
+  "token_type": "Bearer",
+  "expires_in": 3216
+}
+
+snasha ~/Desktop
+$ NEW_TOKEN_1=`curl -s -H "Content-Type:application/x-www-form-urlencoded" -X POST https://sts.googleapis.com/v1/token -d 'grant_type=urn:ietf:params:oauth:grant-type:token-exchange&subject_token_type=urn:ietf:params:oauth:token-type:access_token&requested_token_type=urn:ietf:params:oauth:token-type:access_token&subject_token='$TOKEN --data-urlencode "options=$(cat access.json)" | jq -r '.access_token'`
+
+snasha ~/Desktop
+$ echo $NEW_TOKEN_1
+y****************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************DA8mnLPNJDuws=eofkoekfnwidiwjeoqosndiwdijZFQnCqi8SaXOecOi6yRBA1cbmzyX
+
+snasha ~/Desktop
+$ curl -s -H "Authorization: Bearer $TOKEN"  -o /dev/null  -w "%{http_code}\n" https://storage.googleapis.com/storage/v1/b/bucket1/o
+curl -s -H "Authorization: Bearer $TOKEN"  -o /dev/null  -w "%{http_code}\n" https://storage.googleapis.com/storage/v1/b/bucket2/o
+
+200
+200
+
+snasha ~/Desktop
+$ curl -s -H "Authorization: Bearer $NEW_TOKEN_1"  -o /dev/null  -w "%{http_code}\n" https://storage.googleapis.com/storage/v1/b/bucket1/o    
+200
+
+snasha ~/Desktop
+$ curl -s -H "Authorization: Bearer $NEW_TOKEN_1"  -o /dev/null  -w "%{http_code}\n" https://storage.googleapis.com/storage/v1/b/bucket2/o
+403
+
+**************
+
+snasha ~/Desktop
+$ curl -s -H "Content-Type:application/x-www-form-urlencoded" -X POST https://sts.googleapis.com/v1/token -d 'grant_type=urn:ietf:params:oauth:grant-type:token-exchange&subject_token_type=urn:ietf:params:oauth:token-type:access_token&requested_token_type=urn:ietf:params:oauth:token-type:access_token&subject_token='$TOKEN --data-urlencode "options=$(cat access.json)"
+{
+  "access_token": "IOmBzDR9lbeuLk3wPy8p8dt2Vui6Adw6Xk7tlglqg3Iaf-nGd2WgiX127SW-8Xh1**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************8xz2RIaP_Kr2c1wF0Y6SIvgCYfSf60gEHbbKZ64pgKYK0Xq1eNvq3AyLgB6dwtp95pGAU9wAJkqJT9Mt-ySPgs",
+  "issued_token_type": "urn:ietf:params:oauth:token-type:access_token",
+  "token_type": "Bearer",
+  "expires_in": 1241
+}
+
+
+
+************ POST 1 hr **********
+snasha ~/Desktop
+$ curl -s -H "Content-Type:application/x-www-form-urlencoded" -X POST https://sts.googleapis.com/v1/token -d 'grant_type=urn:ietf:params:oauth:grant-type:token-exchange&subject_token_type=urn:ietf:params:oauth:token-type:access_token&requested_token_type=urn:ietf:params:oauth:token-type:access_token&subject_token='$TOKEN --data-urlencode "options=$(cat access.json)"
+{"error":"invalid_grant","error_description":"Unable to verify the given subject token."}
+snasha ~/Desktop
+$ curl -s -H "Authorization: Bearer $TOKEN"  -o /dev/null  -w "%{http_code}\n" https://storage.googleapis.com/storage/v1/b/bucket2/o
+401
+
+snasha ~/Desktop
+$ curl -s -H "Authorization: Bearer $TOKEN"  -o /dev/null  -w "%{http_code}\n" https://storage.googleapis.com/storage/v1/b/bucket1/o
+401
+
+snasha ~/Desktop
+$ curl -s -H "Authorization: Bearer $NEW_TOKEN_1"  -o /dev/null  -w "%{http_code}\n" https://storage.googleapis.com/storage/v1/b/bucket1/o
+401
+
+snasha ~/Desktop
+$ curl -s -H "Authorization: Bearer $NEW_TOKEN_1"  -o /dev/null  -w "%{http_code}\n" https://storage.googleapis.com/storage/v1/b/bucket2/o
+401
+
